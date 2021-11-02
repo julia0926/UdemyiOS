@@ -15,9 +15,12 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchTextField: UITextField!
     
+    var weatherManager = WeatherManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         searchTextField.delegate = self //이렇게 함으로써 밑에 func 들 사용 가능
+        // 즉,UITextFieldDelegate에 들어있는 함수를 재정의해서 사용 가능
     }
 
     @IBAction func searchPresed(_ sender: UIButton) { //써치 아이콘 누를 때
@@ -41,7 +44,10 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) { //검색을 다 하고 실행되는 메소드 (빈 문자열로 변경)
-        //해당 도시의 날씨를 사용
+        if let city = searchTextField.text{ //text 데이터 타입이 옵셔널이므로 옵셔널로 감쌈
+            weatherManager.fetchWeather(cityName: city)
+            
+        }
         searchTextField.text = ""
     }
     
