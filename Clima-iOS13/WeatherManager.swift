@@ -21,22 +21,41 @@ struct WeatherManager {
             //2. Create a URL Session
             let session = URLSession(configuration: .default)
             //3. Give the sesstion a task
-            let task = session.dataTask(with: url, completionHandler: handle(data: response:error:))
+            let task = session.dataTask(with: url) { data, response, error in
+                if error != nil {
+                    print(error!)
+                    return
+                }
+                
+                if let safeData = data {
+                    if let weather = self.parseJSON(weatherData: safeData) {//self 키워드를 사용해서 같은 영역안에서 사용됨을 나타내야 됨
+                        let weaterVC = WeatherViewController()
+                        weaterVC.didUpdateWeater(weather: weather)
+                    
+                }
+            }
             
             //4. Start the task
             task.resume()
         }
     }
     
-    func handle(data: Data?, response: URLResponse?, error: Error?) {
-        if error != nil {
-            print(error!)
-            return
-        }
-        
-        if let safeData = data {
-            let dataString = String(data: safeData, encoding: .utf8) //웹 사이트에서 인코딩하도록
-            print(dataString)
+    func parseJSON(weatherData: Data) -> WeatherModel? { //optional
+        let decoder = JSONDecoder()
+        do {
+            let decodeData = try decoder.decode(WeatherData.self, from: weatherData)
+            let id = decodeData.weather[0].id
+            let temp = decodeData.main.temp
+            let name = decodeData.name
+             
+            let weather = WeatherModel(conditionId: id, cityName: name, temperature: temp)
+            return weather
+            
+        } catch{
+            print(error)
+            return nil //에러날 때 리턴할 게 없으므로
         }
     }
+    
+    
 }
