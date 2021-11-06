@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController, UITextFieldDelegate {
+class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
 
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
@@ -19,6 +19,7 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        weatherManager.delegate = self
         searchTextField.delegate = self //이렇게 함으로써 밑에 func 들 사용 가능
         // 즉,UITextFieldDelegate에 들어있는 함수를 재정의해서 사용 가능
     }
@@ -51,8 +52,16 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
         searchTextField.text = ""
     }
     
-    func didUpdateWeater(weather: WeatherModel){
-        print(weather.temperature)
+    func didUpdateWeater(_ weatherManager: WeatherManager, weather: WeatherModel){
+        DispatchQueue.main.async { //비동기식
+            self.temperatureLabel.text = weather.temperatureString //model의 온도 문자열로 변경된 값
+            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
+            self.cityLabel.text = weather.cityName
+        }
+       
+    }
+    func didFailWIthError(error: Error) {
+        print(error)
     }
 }
 
