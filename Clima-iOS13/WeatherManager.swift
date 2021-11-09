@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 protocol WeatherManagerDelegate { //여기서 delegate 선언 
     func didUpdateWeater(_ weatherManager: WeatherManager, weather: WeatherModel)
@@ -18,10 +19,17 @@ struct WeatherManager {
     
     var delegate: WeatherManagerDelegate? //프로토콜을 선언해서 외부 ViewController의 함수 사용
     
+    
+    //오버로딩 가능!
     func fetchWeather(cityName: String){
         let urlString = "\(weatherURL)&q=\(cityName)"
         performRequest(with: urlString)
     }
+    func fetchWeather(latitude: CLLocationDegrees, longitute: CLLocationDegrees){
+        let urlString = "\(weatherURL)&lat=\(latitude)&lon=\(longitute)"
+        performRequest(with: urlString)
+    }
+
     func performRequest(with urlString: String){
         //1. Create a URL
         if let url = URL(string: urlString){
@@ -41,7 +49,7 @@ struct WeatherManager {
                     
                 }
             }
-            
+             
             //4. Start the task
             task.resume()
         }

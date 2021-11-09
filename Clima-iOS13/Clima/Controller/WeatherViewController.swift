@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import CoreLocation
 
-class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
+class WeatherViewController: UIViewController {
 
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
@@ -16,14 +17,40 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
     @IBOutlet weak var searchTextField: UITextField!
     
     var weatherManager = WeatherManager()
+    let locationManager = CLLocationManager() //지역 정보를 얻기위해 사용
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        locationManager.delegate = self //먼저 선언해야 됨 
+        locationManager.requestWhenInUseAuthorization() //현재 위치 앱에 인증 여부 물어봄
+        locationManager.requestLocation()
+        
         weatherManager.delegate = self
         searchTextField.delegate = self //이렇게 함으로써 밑에 func 들 사용 가능
         // 즉,UITextFieldDelegate에 들어있는 함수를 재정의해서 사용 가능
     }
 
+}
+//MARK: - CLLocationManager
+extension WeatherViewController: CLLocationManagerDelegate{
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            let lat = location.coordinate.latitude //위도
+            let lon = location.coordinate.longitude //경도
+            weatherManager.fetchWeather(latitude: lat, longitute: lon)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+    }
+}
+
+//MARK: - UITextFieldDelgate
+//섹션을 나눠줌
+
+extension WeatherViewController: UITextFieldDelegate {
     @IBAction func searchPresed(_ sender: UIButton) { //써치 아이콘 누를 때
         searchTextField.endEditing(true) //검색하면 키보드가 저절로 사라짐
         print(searchTextField.text!)
@@ -51,6 +78,11 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         }
         searchTextField.text = ""
     }
+}
+
+//MARK: - WeatherManagerDelegate
+
+extension WeatherViewController: WeatherManagerDelegate {
     
     func didUpdateWeater(_ weatherManager: WeatherManager, weather: WeatherModel){
         DispatchQueue.main.async { //비동기식
@@ -64,4 +96,3 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         print(error)
     }
 }
-
