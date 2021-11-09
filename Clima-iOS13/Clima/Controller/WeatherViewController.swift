@@ -30,15 +30,19 @@ class WeatherViewController: UIViewController {
         searchTextField.delegate = self //이렇게 함으로써 밑에 func 들 사용 가능
         // 즉,UITextFieldDelegate에 들어있는 함수를 재정의해서 사용 가능
     }
-
+    @IBAction func locationPressed(_ sender: UIButton) { //현재 위치를 불러오는 버튼 클릭시
+        locationManager.requestLocation() //현재 위치를 다시 요청
+    }
+    
 }
 //MARK: - CLLocationManager
 extension WeatherViewController: CLLocationManagerDelegate{
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
+        if let location = locations.last { //1. 지역을 찾으면
+            locationManager.stopUpdatingLocation() //2. 이미 찾았으니 업데이트 멈추고
             let lat = location.coordinate.latitude //위도
             let lon = location.coordinate.longitude //경도
-            weatherManager.fetchWeather(latitude: lat, longitute: lon)
+            weatherManager.fetchWeather(latitude: lat, longitute: lon) //3. 위치의 경도, 위도 넘겨줌
         }
     }
     
