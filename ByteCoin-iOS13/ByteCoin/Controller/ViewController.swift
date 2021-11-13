@@ -8,23 +8,8 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDelegate,CoinManagerDelegate {
-    func didFailWithError(error: Error) {
-        print(error)
-    }
+class ViewController: UIViewController {
     
-    func didUpdateCoin(coin: String, type: String) {
-        DispatchQueue.main.async {
-            self.bitcoinLabel.text = coin
-            self.currencyLabel.text = type
-        }
-    }
-    
-    func didFailWIthError(error: Error) {
-        print(error)
-    }
-    
-
     @IBOutlet weak var bitcoinLabel: UILabel!
     @IBOutlet weak var currencyLabel: UILabel!
     @IBOutlet weak var currencyPicker: UIPickerView!
@@ -38,7 +23,12 @@ class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDeleg
         currencyPicker.delegate = self
         
     }
-
+   
+    
+}
+//MARK: - UIPickerViewDataSource
+    
+extension ViewController: UIPickerViewDataSource{
     //columns of number
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -48,6 +38,12 @@ class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDeleg
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return coinManager.currencyArray.count
     }
+}
+    
+
+//MARK: - UIPickerViewDelegate
+
+extension ViewController: UIPickerViewDelegate{
     //한 줄의 타이틀을 리턴
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return coinManager.currencyArray[row]
@@ -57,6 +53,18 @@ class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDeleg
         let selectedCurrency = coinManager.currencyArray[row]
         coinManager.getCoinPrice(for: selectedCurrency)
     }
-    
 }
 
+//MARK: - CoinManagerDelegate
+extension ViewController: CoinManagerDelegate{
+    func didUpdateCoin(coin: String, type: String) {
+        DispatchQueue.main.async {
+            self.bitcoinLabel.text = coin
+            self.currencyLabel.text = type
+        }
+    }
+    func didFailWithError(error: Error) {
+        print(error)
+    }
+    
+}
