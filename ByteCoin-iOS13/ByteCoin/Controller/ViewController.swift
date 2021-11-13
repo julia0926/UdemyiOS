@@ -8,16 +8,35 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDelegate {
+class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDelegate,CoinManagerDelegate {
+    func didFailWithError(error: Error) {
+        print(error)
+    }
+    
+    func didUpdateCoin(coin: String, type: String) {
+        DispatchQueue.main.async {
+            self.bitcoinLabel.text = coin
+            self.currencyLabel.text = type
+        }
+    }
+    
+    func didFailWIthError(error: Error) {
+        print(error)
+    }
+    
 
     @IBOutlet weak var bitcoinLabel: UILabel!
     @IBOutlet weak var currencyLabel: UILabel!
     @IBOutlet weak var currencyPicker: UIPickerView!
     
+    var coinManager = CoinManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        coinManager.delegate = self
         currencyPicker.dataSource = self
         currencyPicker.delegate = self
+        
     }
 
     //columns of number
@@ -26,7 +45,6 @@ class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDeleg
     }
     
     //rows of number
-    let coinManager = CoinManager()
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return coinManager.currencyArray.count
     }
@@ -39,5 +57,6 @@ class ViewController: UIViewController, UIPickerViewDataSource,UIPickerViewDeleg
         let selectedCurrency = coinManager.currencyArray[row]
         coinManager.getCoinPrice(for: selectedCurrency)
     }
+    
 }
 
