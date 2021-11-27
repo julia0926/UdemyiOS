@@ -15,7 +15,7 @@ class ChatViewController: UIViewController {
     @IBOutlet weak var messageTextfield: UITextField!
     
     var messages: [Message] = [
-        Message(sender: "1@2.com", body: "Hello!"),
+        Message(sender: "1@2.com", body: "Hello! Hello!Hello!Hello!Hello!Hello! Hello! Hello!Hello!Hello!Hello!Hello!Hello! Hello!Hello!Hello!Hello!Hello!"),
         Message(sender: "3@4.com", body: "Hi!"),
         Message(sender: "1@2.com", body: "What's up?")
     ]
@@ -26,7 +26,7 @@ class ChatViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         navigationItem.hidesBackButton = true //뒤로가기 버튼 안보이게
-
+        tableView.register(UINib(nibName: K.cellNibName, bundle: nil), forCellReuseIdentifier: K.cellIdentifier)
     }
     
     @IBAction func sendPressed(_ sender: UIButton) {
@@ -52,8 +52,8 @@ extension ChatViewController: UITableViewDataSource{ //테이블 뷰 데이터�
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: K.cellIdentifier, for: indexPath)
-        cell.textLabel?.text = messages[indexPath.row].body
+        let cell = tableView.dequeueReusableCell(withIdentifier: K.cellIdentifier, for: indexPath) as! MessageCell //이미 만들어 놓은 MessageCell로 치환
+        cell.label.text = messages[indexPath.row].body
         return cell
     }
     
