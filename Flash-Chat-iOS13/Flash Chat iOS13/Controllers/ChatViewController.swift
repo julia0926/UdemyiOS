@@ -8,17 +8,16 @@
 
 import UIKit
 import Firebase
+import FirebaseFirestore
 
 class ChatViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var messageTextfield: UITextField!
     
-    var messages: [Message] = [
-        Message(sender: "1@2.com", body: "Hello! Hello!Hello!Hello!Hello!Hello! Hello! Hello!Hello!Hello!Hello!Hello!Hello! Hello!Hello!Hello!Hello!Hello!"),
-        Message(sender: "3@4.com", body: "Hi!"),
-        Message(sender: "1@2.com", body: "What's up?")
-    ]
+    let db = Firestore.firestore()
+    
+    var messages: [Message] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,9 +26,48 @@ class ChatViewController: UIViewController {
         tableView.delegate = self
         navigationItem.hidesBackButton = true //뒤로가기 버튼 안보이게
         tableView.register(UINib(nibName: K.cellNibName, bundle: nil), forCellReuseIdentifier: K.cellIdentifier)
+        
+        loadMessages()
+    }
+    
+    func loadMessages(){
+        messages = []
+        
+        db.collection(K.FStore.collectionName).getDocuments { (QuerySnapshot, error) in //Firestore에서 데이터 가져옴
+            if let e = error {
+                print("Firestore에서 데이터 가져오는 것 실패 : \(e)")
+            }else {
+                if let snapshotDocuments = QuerySnapshot?.documents{
+                    for doc in snapshotDocuments {
+                        let data = doc.data()
+                        if let messageSender = data[K.FStore.senderField] as? String, let messageBody = data[K.FStore.bodyField] as? String{
+                            let newMessage = Message(sender: messageSender, body: messageBody)
+                            self.messages.append(newMessage)
+                            
+                            DispatchQueue.main.async { //이 부분은 메인 스레드에서 실행되야 함 업데이트
+                                self.tableView.reloadData()
+                            }
+                            
+                        }
+                        
+                    }
+                }
+            }
+        }
     }
     
     @IBAction func sendPressed(_ sender: UIButton) {
+        
+        if let messageBody = messageTextfield.text, let messageSender = Auth.auth().currentUser?.email {
+            db.collection(K.FStore.collectionName) //message 
+                .addDocument(data: [K.FStore.senderField: messageSender, K.FStore.bodyField: messageBody]) { (error) in
+                    if let e = error {
+                        print("데이터 저장하는데 문제 생김: \(e)")
+                    }else {
+                        print("Sucessfully saved data")
+                    }
+                }
+        }
     }
     
     @IBAction func logOutPressed(_ sender: UIBarButtonItem) {
