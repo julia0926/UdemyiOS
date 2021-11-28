@@ -33,7 +33,9 @@ class ChatViewController: UIViewController {
     func loadMessages(){
         
         //.addSnapshotListener로 바꿔주면 실시간으로 데이터 수신을 대기
-        db.collection(K.FStore.collectionName).addSnapshotListener  { (QuerySnapshot, error) in //Firestore에서 데이터 가져옴
+        //Firestore에서 데이터 가져옴
+
+        db.collection(K.FStore.collectionName).order(by: K.FStore.dateField).addSnapshotListener  { (QuerySnapshot, error) in //수신 날짜 순으로 order 
             self.messages = []
             if let e = error {
                 print("Firestore에서 데이터 가져오는 것 실패 : \(e)")
@@ -61,7 +63,9 @@ class ChatViewController: UIViewController {
         
         if let messageBody = messageTextfield.text, let messageSender = Auth.auth().currentUser?.email {
             db.collection(K.FStore.collectionName) //message 
-                .addDocument(data: [K.FStore.senderField: messageSender, K.FStore.bodyField: messageBody]) { (error) in
+                .addDocument(data: [K.FStore.senderField: messageSender,
+                                    K.FStore.bodyField: messageBody,
+                                    K.FStore.dateField: Date().timeIntervalSince1970]) { (error) in
                     if let e = error {
                         print("데이터 저장하는데 문제 생김: \(e)")
                     }else {
