@@ -31,9 +31,10 @@ class ChatViewController: UIViewController {
     }
     
     func loadMessages(){
-        messages = []
         
-        db.collection(K.FStore.collectionName).getDocuments { (QuerySnapshot, error) in //Firestore에서 데이터 가져옴
+        //.addSnapshotListener로 바꿔주면 실시간으로 데이터 수신을 대기
+        db.collection(K.FStore.collectionName).addSnapshotListener  { (QuerySnapshot, error) in //Firestore에서 데이터 가져옴
+            self.messages = []
             if let e = error {
                 print("Firestore에서 데이터 가져오는 것 실패 : \(e)")
             }else {
